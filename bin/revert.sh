@@ -3,7 +3,6 @@
 #
 # This script revert the fresh start script to git branch
 #
-# Source: https://github.com/evertramos/nginx-proxy-automation
 #
 
 # Get the script name and its real file path
