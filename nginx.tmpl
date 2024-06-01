@@ -225,6 +225,8 @@ upstream {{ $upstream_name }} {
 {{/* Get the VIRTUAL_ROOT By containers w/ use fastcgi root */}}
 {{ $vhost_root := or (first (groupByKeys $containers "Env.VIRTUAL_ROOT")) "/var/www/public" }}
 
+{{/* Get the VIRTUAL_STATIC By containers which have static content to be served:django etc. */}}
+{{ $vhost_static := or (first (groupByKeys $containers "Env.VIRTUAL_STATIC")) "false" }}
 
 {{/* Get the first cert name defined by containers w/ the same vhost */}}
 {{ $certName := (first (groupByKeys $containers "Env.CERT_NAME")) }}
@@ -307,6 +309,16 @@ server {
 	include {{ printf "/etc/nginx/vhost.d/%s" $host }};
 	{{ else if (exists "/etc/nginx/vhost.d/default") }}
 	include /etc/nginx/vhost.d/default;
+	{{ end }}
+
+	{{ if eq $vhost_static "true" }}
+	# static files
+	location /static/ {
+                autoindex on;
+                autoindex_exact_size off;
+                # root /exact/path/to/project/folder;
+                root   {{ trim $vhost_root }};
+        }
 	{{ end }}
 
 	location / {
